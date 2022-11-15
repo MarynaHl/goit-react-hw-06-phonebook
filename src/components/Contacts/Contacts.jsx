@@ -10,7 +10,7 @@ import {
 export default function Contacts({ arr, onDelContact }) {
   return (
     <ContactsList>
-      {arr.map(({ name, number, id }) => (
+      {arr && arr.map(({ name, number, id }) => (
         <ContactsListItem key={id}>
           <p>
             <UserName>{name}: </UserName>
