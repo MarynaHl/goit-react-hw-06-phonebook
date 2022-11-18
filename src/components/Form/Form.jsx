@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { nanoid } from 'nanoid';
+import toast from 'react-hot-toast';
+
+import { setContactsAction, getContactsArr } from '../../redux/contactsSlice';
 
 import { FormTag, InputField, FormBtn } from './Form.styled';
 
-export default function Form({ onSubmit }) {
+export default function Form() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const dispatch = useDispatch();
 
   const handleChange = evt => {
     switch (evt.target.name) {
@@ -23,8 +28,27 @@ export default function Form({ onSubmit }) {
 
   const handleSubmit = evt => {
     evt.preventDefault();
-    onSubmit({ name, number });
+    formSubmitHandler({ name, number });
     resetState();
+  };
+
+  const contacts = useSelector(getContactsArr);
+  // add new contact
+  const formSubmitHandler = ({ name, number }) => {
+    // checking name for matches
+    const normalizedName = name.toLowerCase();
+    const isFoundName = contacts.some(
+      contact => contact.name.toLowerCase() === normalizedName
+    );
+    // if already exist - show message
+    if (isFoundName) {
+      toast.error(`${name} is already in contacts!`);
+      return;
+    }
+    // if not found, add new contact
+    const newData = { id: nanoid(5), name, number };
+    dispatch(setContactsAction(newData));
+    toast.success('Successfully added!');
   };
 
   const resetState = () => {
@@ -64,7 +88,3 @@ export default function Form({ onSubmit }) {
     </FormTag>
   );
 }
-
-Form.propTypes = {
-  onSubmit: PropTypes.func,
-};
